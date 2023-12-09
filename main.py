@@ -6,6 +6,8 @@ lines = []
 name_tab = []
 arg_tab = []
 def_tab = []
+exp_code = []
+index = 0
 current_address = 0
 
 def process():
@@ -46,23 +48,27 @@ def get_arg_tab(operand_line):
 def get_def_tab():
     global def_tab
     expanded = False
+    global index
     for i, line in enumerate(lines):
         if line["opcode"].lower() == "macro":
             expanded = True
             def_tab_contents = {
+                "index": index,
                 "label": line["label"],
                 "opcode": line["opcode"],
                 "operands": line["operands"]
             }
-            
+            index += 1
             def_tab.append(def_tab_contents)
         elif line["opcode"].lower() == "mend":
             expanded = False
             def_tab_contents = {
+                "index": index,
                 "label": line["label"],
                 "opcode": line["opcode"],
                 "operands": line["operands"]
             }
+            index += 1
             def_tab.append(def_tab_contents)
         elif expanded:
             operand_switch = list(line["operands"])
@@ -75,11 +81,30 @@ def get_def_tab():
                 
             
             def_tab_contents = {
+                "index": index,
                 "label": line["label"],
                 "opcode": line["opcode"],
                 "operands": operand_switch
             }
+            index += 1
             def_tab.append(def_tab_contents)
+
+def expanded_code():
+    global lines
+    global exp_code
+    for i, line in enumerate(lines):
+        if line["opcode"].lower() == "start":
+            exp_code_content = {
+                "name": line["label"],
+                "opcode": line["opcode"],
+                "operands": line["operands"]
+            }
+            exp_code.append(exp_code_content)
+        
+        elif line["opcode"].lower == "macro":
+            pass
+            
+
 
 def main():
     global content, lines
@@ -87,10 +112,15 @@ def main():
     content = pgm.read()
     process()
     get_name_tab()
+    print ("name table")
     pprint.pprint(name_tab)
-    pprint.pprint(arg_tab)
+    print ("arg table")
+  #  pprint.pprint(arg_tab)
     get_def_tab()
+    print ("def table")
     pprint.pprint(def_tab)
+    expanded_code()
+  #  pprint.pprint(exp_code)
 
 if __name__ == "__main__":
     main()
