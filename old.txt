@@ -1,0 +1,132 @@
+from utils import split_instruction
+import pprint
+
+split = []
+lines = []
+name_tab = []
+def_tab = []
+expanded_file = []
+arg_tab = []
+line_counter = 0
+arg_address = 0
+expanding = False  
+
+def process(content):
+    global lines
+    content = content.strip()
+    split = content.split("\n")
+    for i in split:
+        lines.append(split_instruction(i))
+
+def one_pass_macro():
+    global expanding
+    global line_counter
+    expanding = False
+    for i in lines:
+        if i["opcode"].lower() != "end":
+            get_line()
+            process_line(i)
+        line_counter += 1
+
+def get_line():
+    global expanding
+    global line_counter
+    global def_tab
+    global arg_tab
+    cntr = 1
+    position = [] 
+    cntr2 = 0
+    if expanding:
+        next_line = def_tab[cntr]
+        for i in next_line["operands"]:
+            for j in arg_tab:
+                if i == j["arguments"]:
+                    position.append(j["label"])
+                    cntr2 += 1
+            def_tab[cntr]["operands"] = position
+    else:
+        return
+    cntr += 1
+
+def process_line(line):
+    print("process")
+    found = False
+    for i in name_tab:
+        print(i["opcode"])
+        if i["opcode"] == line["opcode"]:
+            found = True
+            break
+    if found:
+        print("expanded")
+        expand(line, i)
+    elif line["opcode"].lower() == "macro":
+        define(line)
+    else:
+        expanded_file.append(line)
+
+def expand(current_line, name):
+    global expanding
+    global def_tab
+    global arg_tab
+    global arg_address
+    expanding = True
+    prototype = None
+
+    for i in def_tab:
+        if name["start"] == i["label"]:
+            prototype = i
+    for i in prototype["operands"]:
+        arg_tab_contents = {
+            "arguments": i,
+            "label": arg_address
+        }
+        arg_address += 1
+        arg_tab.append(arg_tab_contents) 
+    expanded_file.append(current_line)
+
+    while current_line["opcode"].lower() != "end":
+        get_line()
+        process_line(current_line) 
+    expanding = False
+
+def define(current_line):
+    global line_counter
+    local_line_counter = line_counter
+    global def_tab
+    global name_tab
+    global arg_address
+    print("define")
+    name_tab_content = {
+        "name": current_line["label"],
+        "start": local_line_counter,
+        "end": None
+    }
+    current_address = local_line_counter
+    current_line["index"] = current_address
+    def_tab.append(current_line)
+    level = 1
+
+    while level > 0:
+        get_line()
+        def_tab.append(lines[local_line_counter])  
+        current_address += 1
+        if lines[local_line_counter]["opcode"].lower() == "macro":
+            level += 1
+        elif lines[local_line_counter]["opcode"].lower() == "mend":
+            level -= 1
+        local_line_counter += 1
+            
+    name_tab_content["end"] = current_address
+    name_tab.append(name_tab_content)
+    print(name_tab_content)
+
+def main():
+    pgm = open("code.asm")
+    content = pgm.read()
+    process(content)
+
+    one_pass_macro()
+    pprint.pprint(expanded_file)
+
+if __name__ == "__main__":
+    main()
