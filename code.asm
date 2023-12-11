@@ -5,7 +5,7 @@ ABC MACRO &A,&B
     MEND
 BCD MACRO &C,&D
     STA &C
-    STA &B
+    STB &D
     MEND
     ABC P,Q
     BCD R,S
