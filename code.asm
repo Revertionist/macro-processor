@@ -8,5 +8,5 @@ BCD MACRO &C,&D
     STA &B
     MEND
     ABC P,Q
-    ABC R,S
+    BCD R,S
     END
