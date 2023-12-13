@@ -1,6 +1,6 @@
 PGM START 0
 ABC MACRO &A,&B
-    STA &A
+LABEL$ STA &A
     STB &B
     MEND
 BCD MACRO &C,&D
@@ -8,5 +8,6 @@ BCD MACRO &C,&D
     STB &D
     MEND
     ABC P,Q
+    ABC X,Y
     BCD R,S
     END

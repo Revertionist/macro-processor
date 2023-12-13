@@ -8,6 +8,7 @@ val_table = []
 arg_tab = []
 def_tab = []
 exp_code = []
+invocation = {}
 index = 1
 start_index = 0
 end_index = 0
@@ -122,6 +123,11 @@ def expanded_code():
             for j in name_tab:
                 if line["opcode"] == j["name"]:
                     fun_name = j["name"]
+                    if fun_name not in invocation.keys():
+                        invocation[fun_name] = 0
+                    else:
+                        invocation[fun_name] += 1
+                    print (invocation)
                     fun_call = True
                     break
 
@@ -130,7 +136,7 @@ def expanded_code():
             exp_code_content = {
                 "name": '',
                 "opcode": "."+line["opcode"],
-                "operands": line["operands"]
+                "operands": operands
             }
             exp_code.append(exp_code_content)
 
@@ -143,7 +149,7 @@ def expanded_code():
                         if k['index'] >= start_loc:
                             if k['index'] <= end_loc:
                                 exp_code_content = {
-                                    "name": '',
+                                    "name": k["label"].replace("$",str(invocation[fun_name])),
                                     "opcode": k["opcode"],
                                     "operands": get_operand_switch(k["operands"], fun_num)
                                 }
