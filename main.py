@@ -1,5 +1,6 @@
 from utils import split_instruction
 import pprint
+from tabulate import tabulate
 
 content = ""
 lines = []
@@ -127,7 +128,6 @@ def expanded_code():
                         invocation[fun_name] = 0
                     else:
                         invocation[fun_name] += 1
-                    print (invocation)
                     fun_call = True
                     break
 
@@ -157,7 +157,6 @@ def expanded_code():
                                 exp_code.append(exp_code_content)
 
 def get_operand_switch(operands, fun_num):
-    print(operands)
     for l in operands:
         for m in arg_tab:
             if l == m["value"]:
@@ -178,17 +177,21 @@ def get_arg_tab(operands, call_num):
         val += 1
         arg_tab.append(arg_tab_contents)
 
+def export(exp_code):
+    output = ""
+    for i in exp_code:
+        output=output+("{}\t{}\t{}\n".format(i["name"], i["opcode"], ",".join(j for j in i["operands"])))
+    with open("output.asm", "w") as f:
+        f.write(output)
+
 def main():
     global content, lines
     pgm = open("code.asm")
     content = pgm.read()
     process()
     get_name_tab()
-    print("lines")
-    pprint.pprint(lines)
     print("name table")
-    pprint.pprint(name_tab)
-    print("val table")
+    print(tabulate(name_tab))
     call_num = 1
     for i, line in enumerate(lines):
         for j, name in enumerate(name_tab):
@@ -196,15 +199,13 @@ def main():
                 get_arg_tab(line, call_num)
                 call_num += 1
 
-    pprint.pprint(val_table)
     print("arg table")
-    pprint.pprint(arg_tab)
+    print(tabulate(arg_tab))
     get_def_tab()
     print("def table")
-    pprint.pprint(def_tab)
+    print(tabulate(def_tab))
     expanded_code()
-    print("expanded code")
-    pprint.pprint(exp_code)
+    export(exp_code)
 
 if __name__ == "__main__":
     main()

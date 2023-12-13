@@ -1,12 +1,8 @@
 import shlex
 
-
 def split_instruction(instruction):
-    # Use shlex to split the instruction into tokens
     tokens = shlex.split(instruction)
 
-    # Extract label, opcode, and operands from the tokens
-    
     if len(tokens) == 3:
         label = tokens[0]
         opcode = tokens[1]
@@ -34,11 +30,3 @@ def split_instruction(instruction):
     }
 
     return result
-
-
-class CommandType():
-    INVOCATION="INVOCATION"
-    NORMAL="NORMAL"
-    DEFINITION="DEFINITION"
-    MACRO_LITERALS="MACRO_LITERALS"
-
